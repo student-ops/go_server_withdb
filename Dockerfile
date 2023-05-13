@@ -1,9 +1,10 @@
 # Builder stage
 FROM golang:1.16 AS builder
 
-WORKDIR /go/src/app
-COPY . .
+WORKDIR /app
+COPY app/ .
 
+RUN go mod init app
 RUN go mod tidy
 RUN CGO_ENABLED=0 GOOS=linux go build -v -o app
 
@@ -11,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -v -o app
 FROM alpine:latest
 
 RUN apk --no-cache add ca-certificates
-WORKDIR /root/
-COPY --from=builder /go/src/app/app .
+WORKDIR /app
+COPY --from=builder /app .
 
 CMD ["./app"]
